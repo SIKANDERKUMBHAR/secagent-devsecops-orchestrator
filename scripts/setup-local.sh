@@ -17,12 +17,12 @@ python3 -m venv "$TARGET_DIR/.venv"
 "$TARGET_DIR/.venv/bin/secagent" version
 "$TARGET_DIR/.venv/bin/secagent" validate-config --config "$TARGET_DIR/secagent.yml.example"
 
-cat <<'EOF'
+cat <<EOF
 
 secagent local setup complete.
 
 Use these commands:
-  source "$HOME/secagent-devsecops-orchestrator/.venv/bin/activate"
-  secagent scan --target . --config "$HOME/secagent-devsecops-orchestrator/secagent.yml.example"
+  source "$TARGET_DIR/.venv/bin/activate"
+  secagent scan --target . --config "$TARGET_DIR/secagent.yml.example"
 
 EOF
