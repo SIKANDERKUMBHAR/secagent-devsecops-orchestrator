@@ -3,7 +3,7 @@ __pycache__/
 .pytest_cache/
 .coverage
 htmlcov/
-reports/
+/reports/
 .secagent-work/
 .secagent-baseline.json
 secagent-report-html.png
