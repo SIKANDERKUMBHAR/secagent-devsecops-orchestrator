@@ -71,6 +71,19 @@ docker build -t secagent:local .
 docker run --rm --user "$(id -u):$(id -g)" -v "$(pwd)":/workspace -w /workspace secagent:local scan --target /workspace --config /workspace/secagent.yml.example
 ```
 
+Pull from Docker Hub + verify:
+
+```bash
+docker pull sikanderali/secagent:latest
+docker run --rm sikanderali/secagent:latest version
+```
+
+One-command local setup (no Docker):
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/SIKANDERKUMBHAR/secagent-devsecops-orchestrator/main/scripts/setup-local.sh)
+```
+
 GitHub Actions usage notes:
 
 ```bash

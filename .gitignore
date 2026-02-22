@@ -8,3 +8,5 @@ reports/
 .secagent-baseline.json
 secagent-report-html.png
 secagent-report2-html.png
+*.egg-info/
+src/*.egg-info/
