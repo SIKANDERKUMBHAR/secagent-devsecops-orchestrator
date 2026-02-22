@@ -4,6 +4,7 @@ set -euo pipefail
 REPO_URL="${SECAGENT_REPO_URL:-https://github.com/SIKANDERKUMBHAR/secagent-devsecops-orchestrator.git}"
 TARGET_DIR="${SECAGENT_INSTALL_DIR:-$HOME/secagent-devsecops-orchestrator}"
 BIN_DIR="${SECAGENT_BIN_DIR:-$HOME/.local/bin}"
+PROFILE_LINE="export PATH=\"$BIN_DIR:\$PATH\""
 
 require_cmd() {
   if ! command -v "$1" >/dev/null 2>&1; then
@@ -34,6 +35,21 @@ install_venv_pkg_if_possible() {
 require_cmd git
 require_cmd python3
 
+ensure_path_in_shell_profiles() {
+  local profile
+  for profile in "$HOME/.bashrc" "$HOME/.zshrc"; do
+    if [[ -f "$profile" ]]; then
+      if ! grep -Fq "$PROFILE_LINE" "$profile"; then
+        printf '\n# Added by secagent installer\n%s\n' "$PROFILE_LINE" >> "$profile"
+      fi
+    fi
+  done
+
+  if [[ ! -f "$HOME/.bashrc" ]]; then
+    printf '# Added by secagent installer\n%s\n' "$PROFILE_LINE" > "$HOME/.bashrc"
+  fi
+}
+
 if [[ ! -d "$TARGET_DIR/.git" ]]; then
   git clone "$REPO_URL" "$TARGET_DIR"
 else
@@ -58,6 +74,7 @@ cat > "$BIN_DIR/secagent" <<EOF
 exec "$TARGET_DIR/.venv/bin/secagent" "\$@"
 EOF
 chmod +x "$BIN_DIR/secagent"
+ensure_path_in_shell_profiles
 
 cat <<EOF
 
@@ -73,7 +90,7 @@ Use these commands:
 EOF
 
 if ! echo ":$PATH:" | grep -q ":$BIN_DIR:"; then
-  echo "Note: $BIN_DIR is not currently in PATH for this shell." >&2
-  echo "Add this line to your shell profile (~/.bashrc or ~/.zshrc):" >&2
+  echo "Note: $BIN_DIR was added to ~/.bashrc (and ~/.zshrc if present)." >&2
+  echo "Run this once in your current shell to use secagent immediately:" >&2
   echo "  export PATH=\"$BIN_DIR:\$PATH\"" >&2
 fi
