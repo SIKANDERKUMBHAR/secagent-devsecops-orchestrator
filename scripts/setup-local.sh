@@ -5,6 +5,7 @@ REPO_URL="${SECAGENT_REPO_URL:-https://github.com/SIKANDERKUMBHAR/secagent-devse
 TARGET_DIR="${SECAGENT_INSTALL_DIR:-$HOME/secagent-devsecops-orchestrator}"
 BIN_DIR="${SECAGENT_BIN_DIR:-$HOME/.local/bin}"
 PROFILE_LINE="export PATH=\"$BIN_DIR:\$PATH\""
+INSTALL_SCANNERS="${SECAGENT_INSTALL_SCANNERS:-1}"
 
 require_cmd() {
   if ! command -v "$1" >/dev/null 2>&1; then
@@ -34,6 +35,7 @@ install_venv_pkg_if_possible() {
 
 require_cmd git
 require_cmd python3
+require_cmd uname
 
 ensure_path_in_shell_profiles() {
   local profile
@@ -76,6 +78,70 @@ EOF
 chmod +x "$BIN_DIR/secagent"
 ensure_path_in_shell_profiles
 
+install_scanners() {
+  echo "Installing scanner dependencies (semgrep, checkov, gitleaks, trivy)..." >&2
+
+  "$TARGET_DIR/.venv/bin/pip" install --upgrade semgrep==1.84.0 checkov==3.2.298
+
+  cat > "$BIN_DIR/semgrep" <<EOF
+#!/usr/bin/env bash
+exec "$TARGET_DIR/.venv/bin/semgrep" "\$@"
+EOF
+  chmod +x "$BIN_DIR/semgrep"
+
+  cat > "$BIN_DIR/checkov" <<EOF
+#!/usr/bin/env bash
+exec "$TARGET_DIR/.venv/bin/checkov" "\$@"
+EOF
+  chmod +x "$BIN_DIR/checkov"
+
+  local arch
+  arch="$(uname -m)"
+  case "$arch" in
+    x86_64|amd64)
+      ;;
+    *)
+      echo "Warning: gitleaks/trivy auto-install currently supports linux x86_64 only. Current arch: $arch" >&2
+      return 0
+      ;;
+  esac
+
+  require_cmd wget
+  require_cmd tar
+
+  local gitleaks_ver trivy_ver
+  gitleaks_ver="8.23.3"
+  trivy_ver="0.57.1"
+
+  wget -qO- "https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_ver}/gitleaks_${gitleaks_ver}_linux_x64.tar.gz" | tar -xz -C "$BIN_DIR" gitleaks
+  chmod +x "$BIN_DIR/gitleaks"
+
+  wget -qO- "https://github.com/aquasecurity/trivy/releases/download/v${trivy_ver}/trivy_${trivy_ver}_Linux-64bit.tar.gz" | tar -xz -C "$BIN_DIR" trivy
+  chmod +x "$BIN_DIR/trivy"
+
+  echo "Scanner installation complete." >&2
+}
+
+verify_scanners() {
+  local missing=0
+  for cmd in semgrep checkov gitleaks trivy; do
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+      echo "Warning: scanner '$cmd' is not in PATH." >&2
+      missing=1
+    fi
+  done
+
+  if [[ "$missing" -eq 1 ]]; then
+    echo "Tip: open a new shell or run: export PATH=\"$BIN_DIR:\$PATH\"" >&2
+  fi
+}
+
+if [[ "$INSTALL_SCANNERS" == "1" ]]; then
+  install_scanners
+fi
+
+verify_scanners
+
 cat <<EOF
 
 secagent local setup complete.
@@ -85,6 +151,7 @@ Global launcher installed at:
 
 Use these commands:
   secagent version
+  secagent scan --target https://github.com/vulnerable-apps/vulnerable-rest-api.git --config "$TARGET_DIR/secagent.yml.example"
   secagent scan --target . --config "$TARGET_DIR/secagent.yml.example"
 
 EOF
