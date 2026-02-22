@@ -99,6 +99,7 @@ gh run view --log
 - `secagent report --input-json reports/secagent-report.json --output-html reports/custom.html`
 - `secagent baseline create --input-json reports/secagent-report.json --output .secagent-baseline.json`
 - `secagent validate-config --config secagent.yml`
+- `secagent doctor --config secagent.yml`
 - `secagent version`
 
 ## Config

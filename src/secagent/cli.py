@@ -12,6 +12,7 @@ from secagent import __version__
 from secagent.config.loader import ConfigError, load_config
 from secagent.constants import ExitCode
 from secagent.core.baseline import create_baseline_file
+from secagent.core.doctor import doctor_as_json, run_doctor
 from secagent.core.orchestration import run_scan
 from secagent.logging_utils import configure_logging
 from secagent.reports.html_report import render_html_report
@@ -115,6 +116,48 @@ def report(input_json: Path = typer.Option(..., "--input-json"), output_html: Pa
     report_model = UnifiedReport.model_validate(payload)
     render_html_report(report_model, output_html)
     console.print(f"HTML report written: {output_html}")
+
+
+@app.command("doctor")
+def doctor(
+    config: Path | None = typer.Option(None, "--config", help="Optional config to determine required scanners"),
+    as_json: bool = typer.Option(False, "--json", help="Output machine-readable JSON"),
+) -> None:
+    """Diagnose local secagent and scanner environment health."""
+    try:
+        app_config = load_config(config)
+    except ConfigError as exc:
+        console.print(f"[red]Configuration error:[/red] {exc}")
+        raise typer.Exit(code=ExitCode.CONFIG_ERROR)
+
+    enabled_scanners = [
+        name
+        for name, enabled in {
+            "semgrep": app_config.scanners.semgrep,
+            "gitleaks": app_config.scanners.gitleaks,
+            "trivy": app_config.scanners.trivy,
+            "checkov": app_config.scanners.checkov,
+            "zap": app_config.scanners.zap,
+        }.items()
+        if enabled
+    ]
+    results, missing_required = run_doctor(enabled_scanners)
+
+    if as_json:
+        console.print(doctor_as_json(results))
+    else:
+        for item in results:
+            req = "required" if item.required else "optional"
+            status = "OK" if item.installed and not item.error else "MISSING" if not item.installed else "WARN"
+            console.print(f"[{status}] {item.name} ({req})")
+            if item.path:
+                console.print(f"  path: {item.path}")
+            if item.version:
+                console.print(f"  version: {item.version}")
+            if item.error:
+                console.print(f"  note: {item.error}")
+
+    raise typer.Exit(code=ExitCode.SCANNER_ERROR if missing_required else ExitCode.SUCCESS)
 
 
 @baseline_app.command("create")
