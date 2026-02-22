@@ -1,0 +1,15 @@
+{
+  "results": {
+    "failed_checks": [
+      {
+        "check_id": "CKV_DOCKER_2",
+        "check_name": "Ensure that HEALTHCHECK instructions have been added",
+        "file_path": "Dockerfile",
+        "file_line_range": [1, 20],
+        "resource": "Dockerfile",
+        "severity": "MEDIUM",
+        "guideline": "https://docs.bridgecrew.io/docs/dockerfile"
+      }
+    ]
+  }
+}

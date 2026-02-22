@@ -1,0 +1,24 @@
+services:
+  secagent:
+    build: .
+    image: secagent:local
+    command: ["scan", "--target", "/workspace", "--config", "/workspace/secagent.yml.example"]
+    volumes:
+      - ./:/workspace
+    working_dir: /workspace
+    user: "${UID:-1000}:${GID:-1000}"
+    networks:
+      - secnet
+
+  zap:
+    image: ghcr.io/zaproxy/zaproxy:stable
+    command: ["zap.sh", "-daemon", "-host", "0.0.0.0", "-port", "8080"]
+    ports:
+      - "8080:8080"
+    networks:
+      - secnet
+    profiles: ["dast"]
+
+networks:
+  secnet:
+    driver: bridge

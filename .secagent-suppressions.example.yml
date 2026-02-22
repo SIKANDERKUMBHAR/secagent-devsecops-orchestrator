@@ -1,0 +1,10 @@
+suppressions:
+  - fingerprint: "abc123"
+    reason: "Known false positive in test fixture"
+    expires: "2026-12-31"
+    created_by: "team-security"
+    tools: ["semgrep"]
+  - rule_id: "CKV_DOCKER_2"
+    path_glob: "examples/**"
+    reason: "Example code only"
+    expires: "2026-06-30"

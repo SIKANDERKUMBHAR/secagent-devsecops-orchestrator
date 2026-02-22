@@ -1,0 +1,14 @@
+target: .
+output_dir: ./reports
+
+scanners: [semgrep, gitleaks, trivy, checkov]
+formats: [json, html, sarif, md]
+
+fail_on: [CRITICAL, HIGH]
+fail_on_new_only: false
+fail_on_secrets: true
+
+baseline: .secagent-baseline.json
+suppressions: .secagent-suppressions.yml
+
+parallelism: 4

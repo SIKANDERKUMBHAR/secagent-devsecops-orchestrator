@@ -1,0 +1,31 @@
+target: .
+output_dir: ./reports
+profile: local
+
+scanners:
+  semgrep: false
+  gitleaks: false
+  trivy: false
+  checkov: false
+  zap: false
+
+policy:
+  fail_on_severities: [CRITICAL, HIGH]
+  max_allowed: {}
+  fail_on_secrets: true
+  fail_on_new_only: false
+
+baseline:
+  path: .secagent-baseline.json
+  mode: new_only
+
+report:
+  formats: [json, html, sarif, md]
+  include_raw: false
+  theme: default
+
+runtime:
+  work_dir: ./.secagent-work
+  keep_artifacts: false
+  parallelism: 2
+  mask_secrets_in_logs: true

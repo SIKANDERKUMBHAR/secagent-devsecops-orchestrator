@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.coverage
+htmlcov/
+reports/
+.secagent-work/
+.secagent-baseline.json
+secagent-report-html.png
+secagent-report2-html.png

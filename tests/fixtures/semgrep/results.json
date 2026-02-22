@@ -1,0 +1,20 @@
+{
+  "results": [
+    {
+      "check_id": "python.lang.security.audit.eval-detected",
+      "path": "app/main.py",
+      "start": {"line": 10},
+      "end": {"line": 10},
+      "extra": {
+        "message": "Use of eval is dangerous",
+        "severity": "ERROR",
+        "metadata": {
+          "cwe": ["CWE-95"],
+          "owasp": ["A03:2021"],
+          "references": ["https://owasp.org"],
+          "remediation": "Avoid eval and use safe parsing"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+[
+  {
+    "RuleID": "generic-api-key",
+    "Description": "API key detected",
+    "File": "secrets.env",
+    "StartLine": 3,
+    "EndLine": 3,
+    "Match": "token=abcd1234"
+  }
+]
