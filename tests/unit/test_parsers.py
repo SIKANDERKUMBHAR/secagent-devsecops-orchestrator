@@ -107,7 +107,7 @@ def test_nonzero_exit_semantics() -> None:
     assert SemgrepPlugin().is_success_return_code(result) is True
     assert GitleaksPlugin().is_success_return_code(result) is True
     assert CheckovPlugin().is_success_return_code(result) is True
-    assert TrivyPlugin().is_success_return_code(result) is True
+    assert TrivyPlugin().is_success_return_code(result) is False
 
 
 def test_checkov_missing_description_is_handled() -> None:

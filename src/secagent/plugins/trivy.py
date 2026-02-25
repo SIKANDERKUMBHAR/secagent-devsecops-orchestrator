@@ -121,4 +121,4 @@ class TrivyPlugin(ScannerPlugin):
         return config.trivy.timeout_seconds
 
     def is_success_return_code(self, result) -> bool:
-        return result.return_code in (0, 1)
+        return result.return_code == 0
