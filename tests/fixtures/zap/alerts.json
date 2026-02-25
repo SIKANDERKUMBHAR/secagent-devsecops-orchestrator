@@ -1,0 +1,19 @@
+{
+  "alerts": [
+    {
+      "pluginId": "40012",
+      "name": "Cross Site Scripting (Reflected)",
+      "risk": "High",
+      "riskcode": "3",
+      "confidence": "Medium",
+      "url": "http://app:3000/search?q=test",
+      "description": "Reflected XSS was detected.",
+      "solution": "Encode output and validate input.",
+      "reference": "https://owasp.org/www-community/attacks/xss/\nhttps://cheatsheetseries.owasp.org",
+      "cweid": "79",
+      "wascid": "8",
+      "evidence": "<script>alert(1)</script>",
+      "alertRef": "40012-1"
+    }
+  ]
+}

@@ -2,7 +2,7 @@ target: .
 output_dir: ./reports
 
 scanners: [semgrep, gitleaks, trivy, checkov]
-formats: [json, html, sarif, md]
+formats: [json, html, sarif, md, csv]
 
 fail_on: [CRITICAL, HIGH]
 fail_on_new_only: false

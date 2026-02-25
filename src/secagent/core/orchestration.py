@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
@@ -23,12 +24,12 @@ from secagent.plugins.checkov import CheckovPlugin
 from secagent.plugins.gitleaks import GitleaksPlugin
 from secagent.plugins.semgrep import SemgrepPlugin
 from secagent.plugins.trivy import TrivyPlugin
-from secagent.plugins.zap_stub import ZapStubPlugin
+from secagent.plugins.zap import ZapPlugin
 from secagent.utils.masking import mask_secrets
 
 
 def available_plugins() -> list[ScannerPlugin]:
-    return [SemgrepPlugin(), GitleaksPlugin(), TrivyPlugin(), CheckovPlugin(), ZapStubPlugin()]
+    return [SemgrepPlugin(), GitleaksPlugin(), TrivyPlugin(), CheckovPlugin(), ZapPlugin()]
 
 
 def run_scan(
@@ -52,9 +53,48 @@ def run_scan(
     scanner_error = False
     enabled_plugins = [plugin for plugin in available_plugins() if plugin.is_enabled(app_config)]
 
+    runnable_plugins: list[ScannerPlugin] = []
+    for plugin in enabled_plugins:
+        missing_bins = [name for name in plugin.required_binaries(app_config) if shutil.which(name) is None]
+        if not missing_bins:
+            runnable_plugins.append(plugin)
+            continue
+
+        scanner_runs.append(
+            ScannerRun(
+                scanner=plugin.name,
+                status="error",
+                errors=[f"Missing required scanner binaries: {', '.join(missing_bins)}"],
+            )
+        )
+        scanner_error = True
+
+    if scanner_error and not app_config.runtime.allow_partial_results:
+        baseline_set = load_baseline(baseline_path) if baseline_path else set()
+        baseline_diff = apply_baseline(findings, baseline_set, str(baseline_path) if baseline_path else None)
+        policy_result = evaluate_policy(findings, app_config.policy)
+        report = UnifiedReport(
+            metadata=ReportMetadata(
+                schema_version=SCHEMA_VERSION_REPORT,
+                generated_at=datetime.now(timezone.utc),
+                target=target,
+                profile=app_config.profile,
+                secagent_version=__version__,
+            ),
+            scanner_runs=sorted(scanner_runs, key=lambda s: s.scanner),
+            findings=findings,
+            summary=build_summary(findings),
+            policy=policy_result,
+            baseline=baseline_diff,
+            suppressions=SuppressionSummary(),
+            diagnostics={"enabled_scanners": [p.name for p in enabled_plugins], "partial_results": False},
+        )
+        cleanup_target(resolved)
+        return report, int(ExitCode.SCANNER_ERROR)
+
     try:
         with ThreadPoolExecutor(max_workers=max(1, app_config.runtime.parallelism)) as pool:
-            future_map = {pool.submit(_run_single_plugin, plugin, context): plugin for plugin in enabled_plugins}
+            future_map = {pool.submit(_run_single_plugin, plugin, context): plugin for plugin in runnable_plugins}
             for future in as_completed(future_map):
                 plugin = future_map[future]
                 try:
@@ -110,6 +150,10 @@ def run_scan(
 
 
 def _run_single_plugin(plugin: ScannerPlugin, context: ScanContext) -> tuple[ScannerRun, list[Finding], bool]:
+    custom = plugin.run(context)
+    if custom is not None:
+        return custom
+
     command = plugin.build_command(context)
     result = run_command(command, timeout_seconds=plugin.timeout_seconds(context.config))
     parse_source = result.stdout

@@ -1,0 +1,47 @@
+Built a production-ready DevSecOps CLI: `secagent` 🔐⚡
+
+For a long time, I felt the real pain in AppSec wasn’t “running scanners” — it was operating them together.
+
+Teams run 4+ tools for 4 different security domains:
+- SAST
+- Secrets
+- SCA/CVE
+- IaC misconfigurations
+
+But each tool has different output, severity logic, failure behavior, and noisy overlap.
+So in CI/CD, security becomes fragile, hard to trust, and hard to adopt.
+
+I built `secagent` to solve that workflow problem.
+
+What made this hard:
+- Orchestrating Semgrep, Gitleaks, Trivy, and Checkov in one command
+- Normalizing all findings into one schema
+- Handling non-zero exit semantics correctly per tool
+- Deduplicating findings without over-merging
+- Adding baseline mode (`fail on new findings only`) for practical adoption
+- Designing suppression with governance (reason + expiry)
+- Producing unified outputs: JSON + HTML + SARIF + Markdown
+- Making CI stable with deterministic exit codes
+- Ensuring secure-by-default behavior (secret masking, sanitized logs)
+- Dockerizing everything for reproducible local + CI runs
+
+What `secagent` delivers:
+- Single command multi-scanner orchestration
+- Unified policy engine for CI pass/fail
+- Baseline + suppression support
+- GitHub code scanning integration via SARIF
+- DevSecOps pipeline pattern (pre-build + post-build security stages)
+
+Result:
+From “4 tools + custom glue scripts + noisy triage” → one reliable DevSecOps security workflow.
+
+I also built:
+- DockerHub image
+- GitHub Actions pipeline
+- Public docs + guide
+- One-command local installer
+- `secagent doctor` command to verify scanner dependencies
+
+If you’re building DevSecOps at scale, I’d love feedback on design decisions and what to add next.
+
+#DevSecOps #CyberSecurity #AppSec #PlatformEngineering #CloudSecurity #CI #CD #OpenSource #Python #Docker #GitHubActions

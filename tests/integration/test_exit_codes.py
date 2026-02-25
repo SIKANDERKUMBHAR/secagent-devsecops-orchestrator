@@ -29,6 +29,7 @@ def test_policy_fail_exit_code(monkeypatch, tmp_path: Path) -> None:
         def parse(self, raw_output): return [{}]
         def normalize(self, parsed_findings, include_raw=False):
             return [Finding(id="1", fingerprint="fp", tool="p", scanner_type="sast", category="code", title="bad", severity=Severity.HIGH)]
+        def required_binaries(self, config): return []
 
     monkeypatch.setattr("secagent.core.orchestration.available_plugins", lambda: [Plugin()])
     monkeypatch.setattr("secagent.core.orchestration.run_command", lambda *args, **kwargs: CommandResult(0, "{}", "", 0.1))
@@ -49,6 +50,7 @@ def test_scanner_error_exit_code(monkeypatch, tmp_path: Path) -> None:
         def build_command(self, context): return ["p"]
         def parse(self, raw_output): return []
         def normalize(self, parsed_findings, include_raw=False): return []
+        def required_binaries(self, config): return []
 
     monkeypatch.setattr("secagent.core.orchestration.available_plugins", lambda: [Plugin()])
     monkeypatch.setattr("secagent.core.orchestration.run_command", lambda *args, **kwargs: CommandResult(2, "", "boom", 0.1))

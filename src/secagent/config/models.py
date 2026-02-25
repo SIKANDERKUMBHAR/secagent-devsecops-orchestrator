@@ -41,6 +41,7 @@ class ZapConfig(BaseModel):
     enabled: bool = False
     target_url: str = "http://app:3000"
     api_url: str = "http://zap:8080"
+    api_key_env: str | None = None
     timeout_seconds: int = 300
 
 
@@ -57,7 +58,7 @@ class BaselineConfig(BaseModel):
 
 
 class ReportConfig(BaseModel):
-    formats: list[str] = Field(default_factory=lambda: ["json", "html", "sarif"])
+    formats: list[str] = Field(default_factory=lambda: ["json", "html", "sarif", "md", "csv"])
     include_raw: bool = False
     theme: str = "default"
 
@@ -72,6 +73,7 @@ class RuntimeConfig(BaseModel):
     keep_artifacts: bool = False
     parallelism: int = 4
     mask_secrets_in_logs: bool = True
+    allow_partial_results: bool = False
 
 
 class AppConfig(BaseModel):

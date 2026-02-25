@@ -40,6 +40,9 @@ def test_scan_generates_reports_with_mocked_plugin(monkeypatch, tmp_path: Path) 
                 )
             ]
 
+        def required_binaries(self, config):
+            return []
+
     monkeypatch.setattr("secagent.core.orchestration.available_plugins", lambda: [FakePlugin()])
     monkeypatch.setattr(
         "secagent.core.orchestration.run_command",
@@ -49,7 +52,7 @@ def test_scan_generates_reports_with_mocked_plugin(monkeypatch, tmp_path: Path) 
     config_path = tmp_path / "secagent.yml"
     output_dir = tmp_path / "reports"
     config_path.write_text(
-        f"target: .\noutput_dir: {output_dir}\nreport:\n  formats: [json, html, sarif, md]\npolicy:\n  fail_on_severities: [CRITICAL]\n",
+        f"target: .\noutput_dir: {output_dir}\nreport:\n  formats: [json, html, sarif, md, csv]\npolicy:\n  fail_on_severities: [CRITICAL]\n",
         encoding="utf-8",
     )
 
@@ -59,3 +62,4 @@ def test_scan_generates_reports_with_mocked_plugin(monkeypatch, tmp_path: Path) 
     assert (output_dir / "secagent-report.html").exists()
     assert (output_dir / "secagent-report.sarif").exists()
     assert (output_dir / "secagent-report.md").exists()
+    assert (output_dir / "secagent-report.csv").exists()

@@ -17,6 +17,7 @@ from secagent.core.orchestration import run_scan
 from secagent.logging_utils import configure_logging
 from secagent.reports.html_report import render_html_report
 from secagent.reports.json_report import write_json
+from secagent.reports.csv_report import write_csv
 from secagent.reports.markdown_report import write_markdown
 from secagent.reports.sarif_report import write_sarif
 
@@ -91,6 +92,7 @@ def scan(
     html_path = output_dir / "secagent-report.html"
     sarif_path = output_dir / "secagent-report.sarif"
     md_path = output_dir / "secagent-report.md"
+    csv_path = output_dir / "secagent-report.csv"
 
     if "json" in formats:
         write_json(report, json_path)
@@ -100,9 +102,18 @@ def scan(
         write_sarif(report, sarif_path)
     if "md" in formats or "markdown" in formats:
         write_markdown(report, md_path)
+    if "csv" in formats:
+        write_csv(report, csv_path)
 
     console.print(f"Findings: {report.summary.total}")
     console.print(f"Policy: {'PASS' if report.policy.passed else 'FAIL'}")
+    scanner_errors = [run for run in report.scanner_runs if run.status == "error"]
+    if scanner_errors:
+        console.print(f"Scanner errors: {len(scanner_errors)}")
+        for run in scanner_errors:
+            reason = run.errors[0] if run.errors else "unknown error"
+            console.print(f"  - {run.scanner}: {reason}")
+        console.print("Scan status: INCOMPLETE (fix scanner errors or enable runtime.allow_partial_results)")
     console.print(f"Output: {output_dir}")
     raise typer.Exit(code=exit_code)
 

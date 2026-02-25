@@ -12,6 +12,7 @@ from secagent.core.models import (
     UnifiedReport,
 )
 from secagent.reports.html_report import render_html_report
+from secagent.reports.csv_report import write_csv
 from secagent.reports.markdown_report import write_markdown
 from secagent.reports.sarif_report import to_sarif
 
@@ -67,4 +68,12 @@ def test_markdown_report_smoke(tmp_path: Path) -> None:
     write_markdown(_report(), output)
     content = output.read_text(encoding="utf-8")
     assert "# SecAgent Security Report" in content
+    assert "Issue" in content
+
+
+def test_csv_report_smoke(tmp_path: Path) -> None:
+    output = tmp_path / "report.csv"
+    write_csv(_report(), output)
+    content = output.read_text(encoding="utf-8")
+    assert "fingerprint" in content
     assert "Issue" in content

@@ -27,6 +27,7 @@ def test_report_finding_order_is_deterministic(monkeypatch, tmp_path: Path) -> N
                 Finding(id="2", fingerprint="b", tool="p", scanner_type="sast", category="code", title="zeta", severity=Severity.LOW),
                 Finding(id="1", fingerprint="a", tool="p", scanner_type="sast", category="code", title="alpha", severity=Severity.HIGH),
             ]
+        def required_binaries(self, config): return []
 
     monkeypatch.setattr("secagent.core.orchestration.available_plugins", lambda: [Plugin()])
     monkeypatch.setattr("secagent.core.orchestration.run_command", lambda *args, **kwargs: CommandResult(0, "{}", "", 0.1))

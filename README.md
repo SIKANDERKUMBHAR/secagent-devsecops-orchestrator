@@ -4,7 +4,7 @@
 
 ## Features
 
-- Multi-scanner orchestration: Semgrep, Gitleaks, Trivy, Checkov, ZAP plugin stub.
+- Multi-scanner orchestration: Semgrep, Gitleaks, Trivy, Checkov, and OWASP ZAP (sidecar/API mode).
 - Canonical finding model with deterministic fingerprints.
 - Deduplication and policy enforcement with stable CI exit codes.
 - Baseline mode (`new` vs `baselined`) for incremental adoption.
@@ -112,7 +112,7 @@ Short config (recommended):
 target: .
 output_dir: ./reports
 scanners: [semgrep, gitleaks, trivy, checkov]
-formats: [json, html, sarif, md]
+formats: [json, html, sarif, md, csv]
 fail_on: [CRITICAL, HIGH]
 baseline: .secagent-baseline.json
 ```
@@ -173,6 +173,6 @@ GitHub Actions workflow is provided at `.github/workflows/secagent-ci.yml`.
 
 ## Limitations (v1)
 
-- ZAP is a stub plugin in v1 (disabled by default).
+- ZAP support is baseline/API mode for CI-safe DAST; full authenticated active scanning is planned.
 - Trivy image scan mode is planned; filesystem mode is implemented.
 - Full SARIF enrichment can be extended further.

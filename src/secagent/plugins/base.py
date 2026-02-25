@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from secagent.config.models import AppConfig
-from secagent.core.models import Finding
+from secagent.core.models import Finding, ScannerRun
 from secagent.core.runner import CommandResult
 
 
@@ -45,6 +45,14 @@ class ScannerPlugin(ABC):
         """Tool-specific exit semantics override when needed."""
         return result.return_code == 0
 
+    def run(self, context: ScanContext) -> tuple[ScannerRun, list[Finding], bool] | None:
+        """Optional custom execution path for scanners that are API-driven."""
+        return None
+
     def timeout_seconds(self, config: AppConfig) -> int:
         """Tool-specific timeout lookup."""
         return 300
+
+    def required_binaries(self, config: AppConfig) -> list[str]:
+        """Executables required for this plugin to run."""
+        return [self.name]

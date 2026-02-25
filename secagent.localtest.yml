@@ -20,7 +20,7 @@ baseline:
   mode: new_only
 
 report:
-  formats: [json, html, sarif, md]
+  formats: [json, html, sarif, md, csv]
   include_raw: false
   theme: default
 
