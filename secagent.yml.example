@@ -1,7 +1,7 @@
 target: .
 output_dir: ./reports
 
-scanners: [semgrep, gitleaks, trivy, checkov]
+scanners: [semgrep, gitleaks, trivy, checkov, zap]
 formats: [json, html, sarif, md, csv]
 
 fail_on: [CRITICAL, HIGH]
@@ -12,3 +12,16 @@ baseline: .secagent-baseline.json
 suppressions: .secagent-suppressions.yml
 
 parallelism: 4
+
+trivy:
+  timeout_seconds: 300
+  cache_dir: ./.secagent-work/trivy-cache
+
+zap:
+  enabled: false
+  target_url: http://127.0.0.1:3000
+  api_url: http://127.0.0.1:8080
+  timeout_seconds: 300
+
+runtime:
+  allow_partial_results: false
