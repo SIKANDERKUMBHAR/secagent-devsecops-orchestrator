@@ -30,6 +30,7 @@ class TrivyConfig(BaseModel):
     severity: list[str] = Field(default_factory=lambda: ["CRITICAL", "HIGH", "MEDIUM", "LOW"])
     ignore_unfixed: bool = False
     timeout_seconds: int = 180
+    cache_dir: str | None = None
 
 
 class CheckovConfig(BaseModel):

@@ -3,8 +3,10 @@ from pathlib import Path
 
 import pytest
 
+from secagent.config.models import AppConfig
 from secagent.plugins.checkov import CheckovPlugin
 from secagent.plugins.gitleaks import GitleaksPlugin
+from secagent.plugins.base import ScanContext
 from secagent.plugins.semgrep import SemgrepPlugin
 from secagent.plugins.trivy import TrivyPlugin
 
@@ -115,3 +117,11 @@ def test_checkov_missing_description_is_handled() -> None:
     parsed = [{"check_id": "CKV_X", "check_name": "x", "description": None, "file_line_range": []}]
     findings = plugin.normalize(parsed)
     assert findings[0].description == ""
+
+
+def test_trivy_command_uses_writable_cache_dir(tmp_path: Path) -> None:
+    plugin = TrivyPlugin()
+    cfg = AppConfig()
+    context = ScanContext(target=str(tmp_path), output_dir=tmp_path, work_dir=tmp_path / ".secagent-work", config=cfg)
+    command = plugin.build_command(context)
+    assert "--cache-dir" in command

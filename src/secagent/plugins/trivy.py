@@ -24,6 +24,8 @@ class TrivyPlugin(ScannerPlugin):
 
     def build_command(self, context: ScanContext) -> list[str]:
         command = ["trivy", context.config.trivy.scan_mode, "--format", "json", context.target]
+        cache_dir = context.config.trivy.cache_dir or str(context.work_dir / "trivy-cache")
+        command.extend(["--cache-dir", cache_dir])
         if context.config.trivy.severity:
             command.extend(["--severity", ",".join(context.config.trivy.severity)])
         if context.config.trivy.ignore_unfixed:
