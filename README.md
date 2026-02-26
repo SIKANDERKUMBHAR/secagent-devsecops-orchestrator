@@ -92,6 +92,12 @@ gh run list --workflow secagent-ci.yml
 gh run view --log
 ```
 
+ZAP diagnostics (single-run connectivity + container checks):
+
+```bash
+scripts/zap-diagnostics.sh --api-url http://127.0.0.1:8090 --target-url http://127.0.0.1:3000 --config /home/ubuntu/secagent/secagent-dast.yml
+```
+
 ## CLI
 
 - `secagent scan --target . --config secagent.yml`

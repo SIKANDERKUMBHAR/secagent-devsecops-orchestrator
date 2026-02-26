@@ -43,6 +43,9 @@ class ZapConfig(BaseModel):
     target_url: str = "http://app:3000"
     api_url: str = "http://zap:8080"
     api_key_env: str | None = None
+    api_request_timeout_seconds: int = 20
+    api_retries: int = 5
+    api_retry_delay_seconds: float = 1.0
     timeout_seconds: int = 300
 
 

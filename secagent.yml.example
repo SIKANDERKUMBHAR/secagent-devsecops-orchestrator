@@ -21,6 +21,9 @@ zap:
   enabled: false
   target_url: http://127.0.0.1:3000
   api_url: http://127.0.0.1:8080
+  api_request_timeout_seconds: 20
+  api_retries: 5
+  api_retry_delay_seconds: 1.0
   timeout_seconds: 300
 
 runtime:
