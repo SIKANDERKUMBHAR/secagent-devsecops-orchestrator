@@ -106,17 +106,23 @@ EOF
       ;;
   esac
 
-  require_cmd wget
+  require_cmd curl
   require_cmd tar
 
   local gitleaks_ver trivy_ver
   gitleaks_ver="8.23.3"
-  trivy_ver="0.57.1"
+  trivy_ver="0.69.2"
 
-  wget -qO- "https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_ver}/gitleaks_${gitleaks_ver}_linux_x64.tar.gz" | tar -xz -C "$BIN_DIR" gitleaks
+  curl -fsSL --retry 5 --retry-delay 2 --retry-all-errors \
+    "https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_ver}/gitleaks_${gitleaks_ver}_linux_x64.tar.gz" \
+    -o /tmp/gitleaks.tgz
+  tar -xzf /tmp/gitleaks.tgz -C "$BIN_DIR" gitleaks
   chmod +x "$BIN_DIR/gitleaks"
 
-  wget -qO- "https://github.com/aquasecurity/trivy/releases/download/v${trivy_ver}/trivy_${trivy_ver}_Linux-64bit.tar.gz" | tar -xz -C "$BIN_DIR" trivy
+  curl -fsSL --retry 5 --retry-delay 2 --retry-all-errors \
+    "https://github.com/aquasecurity/trivy/releases/download/v${trivy_ver}/trivy_${trivy_ver}_Linux-64bit.tar.gz" \
+    -o /tmp/trivy.tgz
+  tar -xzf /tmp/trivy.tgz -C "$BIN_DIR" trivy
   chmod +x "$BIN_DIR/trivy"
 
   echo "Scanner installation complete." >&2
