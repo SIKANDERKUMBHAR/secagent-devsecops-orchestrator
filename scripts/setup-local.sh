@@ -81,6 +81,8 @@ ensure_path_in_shell_profiles
 install_scanners() {
   echo "Installing scanner dependencies (semgrep, checkov, gitleaks, trivy)..." >&2
 
+  "$TARGET_DIR/.venv/bin/pip" install --upgrade "setuptools<81"
+
   "$TARGET_DIR/.venv/bin/pip" install --upgrade semgrep==1.84.0 checkov==3.2.298
 
   cat > "$BIN_DIR/semgrep" <<EOF
