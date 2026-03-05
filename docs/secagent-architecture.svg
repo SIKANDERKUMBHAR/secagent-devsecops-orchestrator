@@ -1,0 +1,77 @@
+<svg width="1000" height="700" xmlns="http://www.w3.org/2000/svg">
+
+<style>
+.box { fill:#0f1b33; stroke:#3b82f6; stroke-width:2; rx:10; }
+.small { fill:#111827; stroke:#60a5fa; stroke-width:2; rx:8; }
+.text { fill:white; font-family:Arial; font-size:14px; text-anchor:middle; }
+.title { fill:white; font-family:Arial; font-size:18px; text-anchor:middle; font-weight:bold; }
+.arrow { stroke:#9ca3af; stroke-width:2; marker-end:url(#arrowhead); }
+</style>
+
+<defs>
+<marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+<polygon points="0 0, 10 3.5, 0 7" fill="#9ca3af"/>
+</marker>
+</defs>
+
+<text x="500" y="40" class="title">SecAgent DevSecOps Architecture</text>
+
+<!-- Developer -->
+<rect x="400" y="70" width="200" height="50" class="box"/>
+<text x="500" y="100" class="text">Developer Commit</text>
+
+<!-- Arrow -->
+<line x1="500" y1="120" x2="500" y2="170" class="arrow"/>
+
+<!-- CI/CD -->
+<rect x="400" y="170" width="200" height="50" class="box"/>
+<text x="500" y="200" class="text">GitHub Actions CI/CD</text>
+
+<!-- Arrow -->
+<line x1="500" y1="220" x2="500" y2="270" class="arrow"/>
+
+<!-- SecAgent -->
+<rect x="380" y="270" width="240" height="60" class="box"/>
+<text x="500" y="300" class="text">SecAgent</text>
+<text x="500" y="320" class="text">(Security Orchestrator)</text>
+
+<!-- Scan tools -->
+<rect x="150" y="370" width="150" height="50" class="small"/>
+<text x="225" y="400" class="text">Semgrep</text>
+<text x="225" y="418" class="text">(SAST)</text>
+
+<rect x="330" y="370" width="150" height="50" class="small"/>
+<text x="405" y="400" class="text">Trivy</text>
+<text x="405" y="418" class="text">(Container)</text>
+
+<rect x="510" y="370" width="150" height="50" class="small"/>
+<text x="585" y="400" class="text">Checkov</text>
+<text x="585" y="418" class="text">(IaC)</text>
+
+<rect x="690" y="370" width="150" height="50" class="small"/>
+<text x="765" y="400" class="text">Gitleaks</text>
+<text x="765" y="418" class="text">(Secrets)</text>
+
+<rect x="420" y="450" width="160" height="50" class="small"/>
+<text x="500" y="480" class="text">OWASP ZAP</text>
+<text x="500" y="498" class="text">(DAST)</text>
+
+<!-- Lines from SecAgent -->
+<line x1="500" y1="330" x2="225" y2="370" class="arrow"/>
+<line x1="500" y1="330" x2="405" y2="370" class="arrow"/>
+<line x1="500" y1="330" x2="585" y2="370" class="arrow"/>
+<line x1="500" y1="330" x2="765" y2="370" class="arrow"/>
+<line x1="500" y1="330" x2="500" y2="450" class="arrow"/>
+
+<!-- Report -->
+<rect x="380" y="540" width="240" height="50" class="box"/>
+<text x="500" y="570" class="text">Unified Security Report</text>
+
+<!-- Arrow -->
+<line x1="500" y1="500" x2="500" y2="540" class="arrow"/>
+
+<!-- Gate -->
+<rect x="380" y="610" width="240" height="50" class="box"/>
+<text x="500" y="640" class="text">Pipeline Pass / Fail Gate</text>
+
+</svg>

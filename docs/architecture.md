@@ -26,3 +26,9 @@
 - No shell execution in scanner subprocesses.
 - Temporary clone directories for remote targets.
 - Expired suppressions rejected by default.
+
+## Diagram Assets
+
+- SVG: `docs/secagent-architecture.svg`
+- Mermaid source: `docs/secagent-architecture.mmd`
+- PNG render: `docs/secagent-architecture.png`
