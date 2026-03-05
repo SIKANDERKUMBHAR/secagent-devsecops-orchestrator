@@ -1,26 +1,26 @@
-flowchart TB
-    DEV[Developer Commit]
-    CI[GitHub Actions CI/CD]
-    ORCH[SecAgent\nSecurity Orchestrator]
+flowchart TD
 
-    SEM[Semgrep\nSAST]
-    TRI[Trivy\nContainer Scan]
-    CHK[Checkov\nIaC]
-    GLK[Gitleaks\nSecrets]
-    ZAP[OWASP ZAP\nDAST]
+    A[Developer Commit] --> B[GitHub Repository]
 
-    REP[Unified Security Report]
-    GATE[Pipeline Pass / Fail Gate]
+    B --> C[GitHub Actions CI Pipeline]
 
-    DEV --> CI --> ORCH
-    ORCH --> SEM
-    ORCH --> TRI
-    ORCH --> CHK
-    ORCH --> GLK
-    ORCH --> ZAP
-    SEM --> REP
-    TRI --> REP
-    CHK --> REP
-    GLK --> REP
-    ZAP --> REP
-    REP --> GATE
+    C --> D[SecAgent Security Orchestrator]
+
+    D --> E[Semgrep<br/>SAST Scan]
+    D --> F[Trivy<br/>Container Scan]
+    D --> G[Checkov<br/>IaC Scan]
+    D --> H[Gitleaks<br/>Secrets Detection]
+    D --> I[OWASP ZAP<br/>DAST Scan]
+
+    E --> J[Security Findings]
+    F --> J
+    G --> J
+    H --> J
+    I --> J
+
+    J --> K[Unified Security Report]
+
+    K --> L{Security Policy}
+
+    L -->|Pass| M[Deploy Application]
+    L -->|Fail| N[Pipeline Blocked]
