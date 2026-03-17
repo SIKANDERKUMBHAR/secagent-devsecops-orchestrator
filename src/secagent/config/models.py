@@ -42,6 +42,13 @@ class ZapConfig(BaseModel):
     enabled: bool = False
     target_url: str = "http://app:3000"
     api_url: str = "http://zap:8080"
+    auto_start: bool = True
+    image: str = "ghcr.io/zaproxy/zaproxy:stable"
+    fallback_image: str = "zaproxy/zap-stable"
+    container_name: str = "secagent-zap"
+    host_port: int = 8090
+    zap_port: int = 8090
+    cleanup_after_scan: bool = True
     api_key_env: str | None = None
     api_request_timeout_seconds: int = 20
     api_retries: int = 5

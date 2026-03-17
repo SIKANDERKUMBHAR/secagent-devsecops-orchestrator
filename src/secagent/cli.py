@@ -14,6 +14,7 @@ from secagent.constants import ExitCode
 from secagent.core.baseline import create_baseline_file
 from secagent.core.doctor import doctor_as_json, run_doctor
 from secagent.core.orchestration import run_scan
+from secagent.core.zap_manager import ensure_zap_ready, stop_zap_container, zap_status
 from secagent.logging_utils import configure_logging
 from secagent.reports.html_report import render_html_report
 from secagent.reports.json_report import write_json
@@ -23,7 +24,9 @@ from secagent.reports.sarif_report import write_sarif
 
 app = typer.Typer(help="SecAgent security orchestrator CLI")
 baseline_app = typer.Typer(help="Baseline management")
+zap_app = typer.Typer(help="Manage optional ZAP sidecar")
 app.add_typer(baseline_app, name="baseline")
+app.add_typer(zap_app, name="zap")
 console = Console()
 
 
@@ -192,3 +195,52 @@ def baseline_update(
 ) -> None:
     """Update baseline from an existing JSON report."""
     baseline_create(input_json=input_json, output=output)
+
+
+@zap_app.command("start")
+def zap_start(config: Path | None = typer.Option(None, "--config", help="Config YAML file")) -> None:
+    """Start ZAP sidecar or reuse an existing healthy API."""
+    try:
+        app_config = load_config(config)
+    except ConfigError as exc:
+        console.print(f"[red]Configuration error:[/red] {exc}")
+        raise typer.Exit(code=ExitCode.CONFIG_ERROR)
+
+    try:
+        session = ensure_zap_ready(app_config.zap)
+    except Exception as exc:
+        console.print(f"[red]Failed to start ZAP:[/red] {exc}")
+        raise typer.Exit(code=ExitCode.SCANNER_ERROR)
+
+    if session.started_by_secagent:
+        console.print(f"[green]Started ZAP sidecar:[/green] {app_config.zap.api_url}")
+    else:
+        console.print(f"[green]ZAP already reachable:[/green] {app_config.zap.api_url}")
+
+
+@zap_app.command("stop")
+def zap_stop(config: Path | None = typer.Option(None, "--config", help="Config YAML file")) -> None:
+    """Stop configured ZAP sidecar container."""
+    try:
+        app_config = load_config(config)
+    except ConfigError as exc:
+        console.print(f"[red]Configuration error:[/red] {exc}")
+        raise typer.Exit(code=ExitCode.CONFIG_ERROR)
+
+    stop_zap_container(app_config.zap.container_name)
+    console.print(f"Stopped container: {app_config.zap.container_name}")
+
+
+@zap_app.command("status")
+def zap_status_cmd(config: Path | None = typer.Option(None, "--config", help="Config YAML file")) -> None:
+    """Show ZAP API and Docker availability status."""
+    try:
+        app_config = load_config(config)
+    except ConfigError as exc:
+        console.print(f"[red]Configuration error:[/red] {exc}")
+        raise typer.Exit(code=ExitCode.CONFIG_ERROR)
+
+    api_ok, docker_ok = zap_status(app_config.zap)
+    console.print(f"ZAP API ({app_config.zap.api_url}): {'UP' if api_ok else 'DOWN'}")
+    console.print(f"Docker available: {'YES' if docker_ok else 'NO'}")
+    raise typer.Exit(code=ExitCode.SUCCESS if api_ok else ExitCode.SCANNER_ERROR)

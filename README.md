@@ -90,6 +90,8 @@ Optional ZAP sidecar install/start:
 scripts/install-zap.sh --start
 ```
 
+If `zap.enabled: true`, `secagent scan` can auto-start a local ZAP sidecar when `zap.api_url` points to localhost.
+
 GitHub Actions usage notes:
 
 ```bash
@@ -112,6 +114,9 @@ scripts/zap-diagnostics.sh --api-url http://127.0.0.1:8090 --target-url http://1
 - `secagent baseline create --input-json reports/secagent-report.json --output .secagent-baseline.json`
 - `secagent validate-config --config secagent.yml`
 - `secagent doctor --config secagent.yml`
+- `secagent zap start --config secagent.yml`
+- `secagent zap status --config secagent.yml`
+- `secagent zap stop --config secagent.yml`
 - `secagent version`
 
 ## Config

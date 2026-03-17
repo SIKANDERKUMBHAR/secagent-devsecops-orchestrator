@@ -19,6 +19,7 @@ from secagent.core.policy import evaluate_policy
 from secagent.core.runner import run_command
 from secagent.core.suppression import apply_suppressions, load_suppressions
 from secagent.core.target_resolver import cleanup_target, resolve_target
+from secagent.core.zap_manager import ZapSession, cleanup_zap_session, ensure_zap_ready
 from secagent.plugins.base import ScanContext, ScannerPlugin
 from secagent.plugins.checkov import CheckovPlugin
 from secagent.plugins.gitleaks import GitleaksPlugin
@@ -52,6 +53,7 @@ def run_scan(
     findings: list[Finding] = []
     scanner_error = False
     enabled_plugins = [plugin for plugin in available_plugins() if plugin.is_enabled(app_config)]
+    zap_session: ZapSession | None = None
 
     runnable_plugins: list[ScannerPlugin] = []
     for plugin in enabled_plugins:
@@ -68,6 +70,20 @@ def run_scan(
             )
         )
         scanner_error = True
+
+    if any(plugin.name == "zap" for plugin in runnable_plugins):
+        try:
+            zap_session = ensure_zap_ready(app_config.zap)
+        except Exception as exc:
+            scanner_runs.append(
+                ScannerRun(
+                    scanner="zap",
+                    status="error",
+                    errors=[str(exc)],
+                )
+            )
+            scanner_error = True
+            runnable_plugins = [plugin for plugin in runnable_plugins if plugin.name != "zap"]
 
     if scanner_error and not app_config.runtime.allow_partial_results:
         baseline_set = load_baseline(baseline_path) if baseline_path else set()
@@ -89,6 +105,7 @@ def run_scan(
             suppressions=SuppressionSummary(),
             diagnostics={"enabled_scanners": [p.name for p in enabled_plugins], "partial_results": False},
         )
+        cleanup_zap_session(app_config.zap, zap_session)
         cleanup_target(resolved)
         return report, int(ExitCode.SCANNER_ERROR)
 
@@ -112,6 +129,7 @@ def run_scan(
                     )
                     scanner_error = True
     finally:
+        cleanup_zap_session(app_config.zap, zap_session)
         cleanup_target(resolved)
 
     unique, _duplicates = dedupe_findings(findings)

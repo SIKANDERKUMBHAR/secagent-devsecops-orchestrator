@@ -21,6 +21,13 @@ zap:
   enabled: false
   target_url: http://127.0.0.1:3000
   api_url: http://127.0.0.1:8080
+  auto_start: true
+  image: ghcr.io/zaproxy/zaproxy:stable
+  fallback_image: zaproxy/zap-stable
+  container_name: secagent-zap
+  host_port: 8090
+  zap_port: 8090
+  cleanup_after_scan: true
   api_request_timeout_seconds: 20
   api_retries: 5
   api_retry_delay_seconds: 1.0
