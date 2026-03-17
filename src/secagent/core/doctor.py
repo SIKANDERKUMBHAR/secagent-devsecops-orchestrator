@@ -28,17 +28,18 @@ def run_doctor(enabled_scanners: list[str]) -> tuple[list[ToolHealth], bool]:
     ]
 
     scanner_tools = {
-        "semgrep": ["--version"],
-        "gitleaks": ["version"],
-        "trivy": ["--version"],
-        "checkov": ["--version"],
-        "zap": ["-version"],
+        "semgrep": {"version_args": ["--version"], "optional": False},
+        "gitleaks": {"version_args": ["version"], "optional": False},
+        "trivy": {"version_args": ["--version"], "optional": False},
+        "checkov": {"version_args": ["--version"], "optional": False},
+        # ZAP runs in API sidecar mode for secagent, so local binary is optional.
+        "zap": {"version_args": ["-version"], "optional": True},
     }
 
     missing_required = False
-    for scanner, version_args in scanner_tools.items():
-        required = scanner in enabled_scanners
-        health = _check_tool(scanner, required=required, version_args=version_args)
+    for scanner, metadata in scanner_tools.items():
+        required = scanner in enabled_scanners and not metadata["optional"]
+        health = _check_tool(scanner, required=required, version_args=metadata["version_args"])
         if required and not health.installed:
             missing_required = True
         checks.append(health)

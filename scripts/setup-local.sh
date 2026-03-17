@@ -128,6 +128,8 @@ EOF
   chmod +x "$BIN_DIR/trivy"
 
   echo "Scanner installation complete." >&2
+  echo "Note: OWASP ZAP is optional and API-sidecar based." >&2
+  echo "      Install/start it separately with: scripts/install-zap.sh --start" >&2
 }
 
 verify_scanners() {
@@ -163,6 +165,9 @@ Use these commands:
   secagent scan --target . --config "$TARGET_DIR/secagent.yml.example"
 
 EOF
+
+echo "Optional ZAP sidecar helper:" >&2
+echo "  $TARGET_DIR/scripts/install-zap.sh --start" >&2
 
 if ! echo ":$PATH:" | grep -q ":$BIN_DIR:"; then
   echo "Note: $BIN_DIR was added to ~/.bashrc (and ~/.zshrc if present)." >&2

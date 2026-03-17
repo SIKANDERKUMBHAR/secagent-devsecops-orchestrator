@@ -15,3 +15,12 @@ def test_doctor_missing_required(monkeypatch) -> None:
     semgrep = next(item for item in results if item.name == "semgrep")
     assert semgrep.required is True
     assert semgrep.installed is False
+
+
+def test_doctor_zap_optional(monkeypatch) -> None:
+    monkeypatch.setattr("secagent.core.doctor.shutil.which", lambda _name: None)
+    results, missing = run_doctor(["zap"])
+    assert missing is False
+    zap = next(item for item in results if item.name == "zap")
+    assert zap.required is False
+    assert zap.installed is False

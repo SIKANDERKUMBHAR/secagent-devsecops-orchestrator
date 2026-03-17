@@ -84,6 +84,12 @@ One-command local setup (no Docker):
 bash <(curl -fsSL https://raw.githubusercontent.com/SIKANDERKUMBHAR/secagent-devsecops-orchestrator/main/scripts/setup-local.sh)
 ```
 
+Optional ZAP sidecar install/start:
+
+```bash
+scripts/install-zap.sh --start
+```
+
 GitHub Actions usage notes:
 
 ```bash
