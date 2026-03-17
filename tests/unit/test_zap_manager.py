@@ -1,5 +1,6 @@
 from secagent.config.models import ZapConfig
 from secagent.core.zap_manager import ZapSession, cleanup_zap_session, ensure_zap_ready
+import urllib.request
 
 
 def test_ensure_zap_ready_reuses_existing(monkeypatch) -> None:
@@ -37,3 +38,16 @@ def test_cleanup_only_when_started(monkeypatch) -> None:
     assert calls == []
     cleanup_zap_session(cfg, ZapSession(container_name="secagent-zap", started_by_secagent=True))
     assert calls == [["rm", "-f", "secagent-zap"]]
+
+
+def test_ensure_zap_ready_handles_connection_reset(monkeypatch) -> None:
+    def failing_urlopen(*_args, **_kwargs):
+        raise ConnectionResetError("reset")
+
+    monkeypatch.setattr(urllib.request, "urlopen", failing_urlopen)
+    cfg = ZapConfig(enabled=True, auto_start=False)
+    try:
+        ensure_zap_ready(cfg)
+        assert False, "expected RuntimeError"
+    except RuntimeError as exc:
+        assert "auto_start is false" in str(exc)

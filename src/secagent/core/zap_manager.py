@@ -73,7 +73,7 @@ def _zap_api_ready(api_url: str) -> bool:
     try:
         with urllib.request.urlopen(url, timeout=3) as response:  # noqa: S310
             return response.status == 200
-    except (urllib.error.URLError, TimeoutError, ValueError):
+    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, ConnectionResetError, OSError, ValueError):
         return False
 
 
